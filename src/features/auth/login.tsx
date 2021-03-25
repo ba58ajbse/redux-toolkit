@@ -1,13 +1,23 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { auth } from '../../firebase';
 
 const Login = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [authenticated, setAuthenticated] = useState(false)
+
+  useEffect(() => {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        setAuthenticated(true)
+      } else {
+        setAuthenticated(false)
+      }
+    })
+  })
 
   const logIn = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('login')
     try {
       const res = await auth.signInWithEmailAndPassword(email, password)
       console.log({res})
@@ -35,7 +45,8 @@ const Login = () => {
       </div>
       <button type="submit">Login</button>
     </form>
-    <button type='button' onClick={logOut}>logout</button>
+    {authenticated &&
+      <button type='button' onClick={logOut}>logout</button>}
     </>
   )
 }
